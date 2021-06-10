@@ -278,7 +278,10 @@ describe('microadBidAdapter', () => {
         ttl: 10,
         creativeId: 'creative-id',
         netRevenue: true,
-        currency: 'JPY'
+        currency: 'JPY',
+        meta: {
+          advertiserDomains: ['foobar.com']
+        }
       }
     };
     const expectedBidResponseTemplate = {
@@ -290,7 +293,10 @@ describe('microadBidAdapter', () => {
       ttl: 10,
       creativeId: 'creative-id',
       netRevenue: true,
-      currency: 'JPY'
+      currency: 'JPY',
+      meta: {
+        advertiserDomains: ['foobar.com']
+      }
     };
 
     it('should return nothing if server response body does not contain cpm', () => {
@@ -323,6 +329,16 @@ describe('microadBidAdapter', () => {
       });
 
       expect(spec.interpretResponse(serverResponseWithDealId)).to.deep.equal([expectedBidResponse]);
+    });
+
+    it('should return a valid bidResponse without meta if serverResponse is valid, has a nonzero cpm and no deal id', () => {
+      const serverResponseWithoutMeta = Object.assign({}, utils.deepClone(serverResponseTemplate));
+      delete serverResponseWithoutMeta.body.meta;
+      const expectedBidResponse = Object.assign({}, expectedBidResponseTemplate, {
+        meta: { advertiserDomains: [] }
+      });
+
+      expect(spec.interpretResponse(serverResponseWithoutMeta)).to.deep.equal([expectedBidResponse]);
     });
   });
 
